@@ -66,22 +66,17 @@ void send_file(std::string filename, int iResult, SOCKET ConnectSocket)
     read_file.open(filename);
     std::string line;
     while (std::getline(read_file, line)){
+        line += '\n';
+        std::cout << "line:" << line << std::endl;
         char* c = const_cast<char*>(line.c_str());
-        printf("line:%s", c);
+        printf("Line Change:%s", c);
         iResult = send( ConnectSocket, c, (int)strlen(c), 0 );
         if (iResult == SOCKET_ERROR) {
-        printf("send failed with error: %d\n", WSAGetLastError());
-        closesocket(ConnectSocket);
-        WSACleanup();
+            printf("send failed with error: %d\n", WSAGetLastError());
+            closesocket(ConnectSocket);
+            WSACleanup();
         }
     }
-    iResult = shutdown(ConnectSocket, SD_SEND);
-    if (iResult == SOCKET_ERROR) {
-        printf("shutdown failed with error: %d\n", WSAGetLastError());
-        closesocket(ConnectSocket);
-        WSACleanup();
-    }
-
 
 }
 

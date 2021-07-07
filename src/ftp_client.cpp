@@ -20,23 +20,33 @@
 
 #define DEFAULT_BUFLEN 200
 #define DEFAULT_PORT "27015"
-                                                                                                                                                                                                                                                   
 void recv_file(SOCKET ConnectSocket, char recvbuf[DEFAULT_BUFLEN], int iResult, std::string filename)
-{
+{  
+   std::cout << "Filename:" << filename << std::endl;
    std::ofstream ifile;
    ifile.open(filename, std::ofstream::out | std::ofstream::trunc);
    if(ifile) {
-      std::cout<<"rewriting file";
+      printf("rewriting file\n");
       ifile.close();
       ifile.open(filename, std::ofstream::app);
-   } else {
-      std::cout << "created a new file";
-      ifile.open(filename);
-   }
+   } 
 
    do {
         iResult = recv(ConnectSocket, recvbuf, DEFAULT_BUFLEN, 0);
-        ifile << recvbuf;
+        // extract the new bytes
+        std::string in_bytes;
+        printf("Recvbuf:%s", recvbuf);
+        for( int i = 0; i < iResult; i++){
+            if(recvbuf[i] != '\n'){
+                in_bytes += recvbuf[i];
+            }
+            else if(recvbuf[i] == '\n'){
+                std::cout << "in_bytes:" << in_bytes << std::endl;
+                in_bytes += '\n';
+                ifile << in_bytes;
+                in_bytes.clear();
+            }
+        }
 
         if ( iResult > 0 )
             printf("Bytes received: %d\n", iResult);
@@ -47,7 +57,7 @@ void recv_file(SOCKET ConnectSocket, char recvbuf[DEFAULT_BUFLEN], int iResult, 
 
     } while( iResult > 0 );  
 
-}
+} 
 void send_file(std::string filename, int iResult, SOCKET ConnectSocket)
 {
     std::ifstream read_file;
